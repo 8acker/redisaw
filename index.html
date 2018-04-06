@@ -1,0 +1,29 @@
+<html ng-app="RedisOperator">
+<head>
+    <meta charset="UTF-8">
+    <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/angular-route/angular-route.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script src="node_modules/jsonformatter/dist/json-formatter.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="node_modules/jsonformatter/dist/json-formatter.min.css" />
+    <script src="node_modules/json-tree-view/JSONView.js"></script>
+    <link rel="stylesheet" type="text/css" href="node_modules/json-tree-view/devtools.css" />
+    <script>
+        var electron = require('electron');
+        const config = require('./config.json');
+    </script>
+    <script src="js/app.js"></script>
+</head>
+
+<ul class="nav nav-pills">
+    <li><a href="#/showall"/>Redis Operator</a></li>
+    <script type="application/javascript">document.querySelector("li a").focus();</script>
+</ul>
+
+<hr/>
+
+<ng-view></ng-view>
+
+</html>

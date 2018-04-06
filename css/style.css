@@ -1,0 +1,42 @@
+body {
+    margin: 1.6em;
+}
+
+status.ready {
+    color: darkgreen;
+    font-weight: bold;
+}
+
+status.error {
+    color: red;
+}
+
+duration {
+    font-size: 0.8em;
+}
+
+ul.migrations li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.migrations li:last-child {
+    border: none;
+}
+
+td.nowrap {
+    white-space: nowrap;
+}
+
+td div.hidden_overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 360px;
+    display: inline-block;
+}
+
+a.tiny {
+    font-size: 0.6em;
+}

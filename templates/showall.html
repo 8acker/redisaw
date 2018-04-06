@@ -1,0 +1,47 @@
+<h2>{{ title }}</h2>
+
+<div class="form-group">
+    <label for="stage">Stage:</label>
+    <select class="form-control" id="stage" ng-model="stage">
+        <option value="local">LOCAL</option>
+        <option value="udinc">UDINC</option>
+        <option value="udag">UDAG</option>
+    </select>
+    <label for="host">Host:</label>
+    <select class="form-control" id="host" ng-model="host">
+        <option ng-repeat="h in hosts" value="{{ h }}">{{ h }}</option>
+    </select>
+</div>
+
+<hr/>
+
+<div class="form-group">
+    <label for="filter">Filter:</label>
+    <input type="text" class="form-control" placeholder="Enter to filter keys" id="filter" ng-model="filter"/>
+    <label for="key">Select:</label>
+    <input type="text" class="form-control" placeholder="Enter to select entry" id="key" ng-model="key"/>
+</div>
+
+<div class="panel panel-primary">
+
+    <div class="panel-heading">
+        <h3 ng-if="filter" class="panel-title">Keys for pattern '{{filter}}'</h3>
+        <h3 ng-if="key" class="panel-title">Entry for key '{{key}}'</h3>
+    </div>
+
+    <table class="migrations table table-striped">
+        <tr ng-if="keys">
+            <td class="nowrap">
+                <json-formatter open="10" json="keys"></json-formatter>
+            </td>
+        </tr>
+        <tr ng-if="entry">
+            <td class="nowrap">
+                <json-formatter open="10" json="entry"></json-formatter>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<img ng-if="loading" src="img/box.gif"/>

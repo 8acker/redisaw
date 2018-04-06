@@ -1,0 +1,31 @@
+{
+  "name": "redisaw",
+  "version": "1.0.0",
+  "description": "redis viewer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://diygitlabbs01.infra.server.lan/froth/cme-suppilo-to-mywebsite-importer-redis-gui.git"
+  },
+  "author": "Frank Roth & Thami Bouchnafa",
+  "license": "CC0-1.0",
+  "dependencies": {
+    "angular": "^1.6.9",
+    "angular-route": "^1.6.9",
+    "bootstrap": "^3.3.6",
+    "dateformat": "^3.0.2",
+    "debug": "^2.2.0",
+    "jsonformatter": "^0.7.0",
+    "kill-port": "^1.1.0",
+    "open": "0.0.5"
+  },
+  "devDependencies": {
+    "concurrently": "^2.0.0",
+    "electron-prebuilt": "^1.2.0",
+    "grunt-electron-installer": "^2.1.0",
+    "lite-server": "^2.2.0"
+  }
+}
