@@ -69,12 +69,14 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
             $scope.loading = true;
             delete $scope.entry;
             delete $scope.key;
-            const filter = $scope.filter.indexOf('*') > -1 ? $scope.filter : $scope.filter + "*";
+            var filter = $scope.filter.indexOf('*') > -1 ? $scope.filter : $scope.filter + "*";
+            filter = $scope.namespace && config[$scope.stage].namespace + filter || filter;
             const requestUrl = "http://127.0.0.1:7379/keys/" + encodeURIComponent(filter);
             $http({
                       method: "GET",
                       url: requestUrl
                   }).then(function successCallback(response) {
+                console.log("GET " + requestUrl);
                 $scope.keys = response.data;
                 $scope.loading = false;
             }, function errorCallback(err) {
@@ -85,11 +87,13 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
             $scope.loading = true;
             delete $scope.keys;
             delete $scope.filter;
-            const requestUrl = "http://127.0.0.1:7379/get/" + encodeURIComponent($scope.key);
+            const key = $scope.namespace && config[$scope.stage].namespace + $scope.key || $scope.key;
+            const requestUrl = "http://127.0.0.1:7379/get/" + encodeURIComponent(key);
             $http({
                       method: "GET",
                       url: requestUrl
                   }).then(function successCallback(response) {
+                console.log("GET " + requestUrl);
                 $scope.entry = JSON.parse(response.data.get);
                 $scope.loading = false;
             }, function errorCallback(err) {
