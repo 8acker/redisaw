@@ -15,14 +15,9 @@ duration {
     font-size: 0.8em;
 }
 
-ul.migrations li {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-ul.migrations li:last-child {
-    border: none;
+div.json {
+    width: auto !important;
+    height: auto !important;
 }
 
 td.nowrap {

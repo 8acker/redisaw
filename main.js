@@ -21,12 +21,12 @@ var mainWindow;
 app.on('ready', function () {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        center: true,
-        autoHideMenuBar: true,
-        icon: false
-    });
+                                       width: 800,
+                                       height: 600,
+                                       center: true,
+                                       autoHideMenuBar: true,
+                                       icon: false
+                                   });
 
     mainWindow.maximize();
 
@@ -55,9 +55,7 @@ app.on('ready', function () {
 app.title = "Redis Operator";
 
 app.startWebdis = startWebdis;
-app.stopWebdis = function () {
-    kill(require("./webdis/webdis.json").http_port).then(console.log("Webdis process killed")).catch(console.log);
-};
+var connectionStatus = {status: "failed", connectedHost: getRedisHost(), error: new Error("No yet started")};
 
 app.changed = function (stage, host) {
     const changes = {
@@ -65,7 +63,8 @@ app.changed = function (stage, host) {
         redis_auth: config[stage].redis.password,
         database: config[stage].redis.database
     };
-    restartWebdis(writeConfig(changes).http_port);
+    writeConfig(changes);
+    startWebdis();
 };
 
 function writeConfig(obj) {
@@ -78,19 +77,34 @@ function writeConfig(obj) {
 }
 
 function startWebdis() {
+    kill(7379).then(console.log("Webdis process killed")).catch(console.log);
     const cmd = "./webdis/webdis webdis.json &";
     return new Promise(function (resolve) {
         exec(cmd, function (error, stdout, stderr) {
-            if (error) return resolve(error);
-            if (stderr) return resolve(stderr);
-            resolve(true);
+            if (error) {
+                connectionStatus.status = "failed";
+                connectionStatus.error = error;
+                return resolve(error);
+            } else if (stderr) {
+                connectionStatus.status = "failed";
+                connectionStatus.error = stderr;
+                return resolve(stderr);
+            } else {
+                connectionStatus.status = "failed";
+                delete connectionStatus.error;
+                resolve(true);
+            }
         });
     });
 }
 
-function restartWebdis(port) {
-    kill(port).then(console.log("Webdis process killed")).catch(console.log);
-    startWebdis().then(console.log("Webdis restarted")).catch(console.log);
+app.getRedisHost = getRedisHost;
+app.getConnectionStatus = function () {
+    return connectionStatus;
+};
+
+function getRedisHost() {
+    return require(path.resolve("webdis.json")).redis_host;
 }
 
 // Quit when all windows are closed.

@@ -4,10 +4,9 @@ function logChanged(watched, newVal, oldVal) {
     console.log(watched + " has been changed: " + oldVal + " => " + newVal);
 }
 
-var app = angular.module("RedisOperator", ["ngRoute", "jsonFormatter"]);
+var app = angular.module("RedisOperator", ["ngRoute", "ng.jsoneditor"]);
 
-app.config(function ($routeProvider, JSONFormatterConfigProvider) {
-    JSONFormatterConfigProvider.hoverPreviewEnabled = true;
+app.config(function ($routeProvider) {
     $routeProvider
         .when("/home", {
             templateUrl: "templates/home.html",
@@ -23,11 +22,11 @@ app.config(function ($routeProvider, JSONFormatterConfigProvider) {
             }
         })
         .otherwise({redirectTo: "/showall"});
-    electronService.stopWebdis();
-    electronService.startWebdis().then(console.log("Webdis started")).catch(console.log);
+    electronService.startWebdis().then(console.log("Webdis restarted")).catch(console.log);
 });
 
 app.controller("showAllController", ['$scope', '$http', function ($scope, $http) {
+    $scope.obj = {options: {mode: "tree"}};
     $scope.title = electronService.title;
     $scope.stage = config.local.stage;
     $scope.host = config[$scope.stage].redis.host;
@@ -52,55 +51,64 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
         }
     });
 
-    $scope.$watch("filter", function (newValue, oldValue) {
-        if (oldValue !== newValue) {
-            $scope.fetchEntries();
-        }
-    });
-
-    $scope.$watch("key", function (newValue, oldValue) {
+    $scope.$watch("select", function (newValue, oldValue) {
         if (oldValue !== newValue) {
             $scope.fetchEntries();
         }
     });
 
     $scope.fetchEntries = function () {
-        if ($scope.filter) {
-            $scope.loading = true;
-            delete $scope.entry;
-            delete $scope.key;
-            var filter = $scope.filter.indexOf('*') > -1 ? $scope.filter : $scope.filter + "*";
-            filter = $scope.namespace && config[$scope.stage].namespace + filter || filter;
-            const requestUrl = "http://127.0.0.1:7379/keys/" + encodeURIComponent(filter);
-            $http({
-                      method: "GET",
-                      url: requestUrl
-                  }).then(function successCallback(response) {
-                console.log("GET " + requestUrl);
-                $scope.keys = response.data;
-                $scope.loading = false;
-            }, function errorCallback(err) {
-                console.log(JSON.stringify(err));
-                $scope.loading = false;
-            });
-        } else if ($scope.key) {
-            $scope.loading = true;
-            delete $scope.keys;
-            delete $scope.filter;
-            const key = $scope.namespace && config[$scope.stage].namespace + $scope.key || $scope.key;
-            const requestUrl = "http://127.0.0.1:7379/get/" + encodeURIComponent(key);
-            $http({
-                      method: "GET",
-                      url: requestUrl
-                  }).then(function successCallback(response) {
-                console.log("GET " + requestUrl);
-                $scope.entry = JSON.parse(response.data.get);
-                $scope.loading = false;
-            }, function errorCallback(err) {
-                console.log(JSON.stringify(err));
-                $scope.loading = false;
-            });
+        if (!$scope.select) return;
+        $scope.loading = true;
+        const command = $scope.select.indexOf('*') > -1 ? "keys" : "get";
+        const requestUrl = "http://127.0.0.1:7379/" + command + "/" + encodeURIComponent($scope.select);
+        $http.get(requestUrl).then(function successCallback(response) {
+            console.log("GET " + requestUrl);
+            if (command === "get") {
+                $scope.key = $scope.select;
+                $scope.entry = JSON.parse(response.data[command]);
+                $scope.obj = {data: $scope.entry, options: {mode: "code"}};
+            } else {
+                $scope.obj = {data: response.data[command], options: {mode: "code"}};
+            }
+            delete $scope.lastUpdate;
+            $scope.loading = false;
+        }, function errorCallback(err) {
+            console.log(JSON.stringify(err));
+            $scope.loading = false;
+        });
+    };
+
+    $scope.updateEntry = function () {
+        delete $scope.lastUpdate;
+        if (!$scope.key) {
+            $scope.lastUpdate = {status: "failed", key: $scope.key, error: new Error("No key provided")};
+        } else if (!$scope.obj.data) {
+            $scope.lastUpdate = {status: "failed", key: $scope.key, error: new Error("No payload provided")};
+        } else if (!$scope.validateJSON($scope.obj.data)) {
+            $scope.lastUpdate = {
+                status: "failed",
+                key: $scope.key,
+                error: new Error("JSON input not valid or entry has not been changed")
+            };
+        } else {
+            console.log("Updating key " + $scope.key + ": " + JSON.stringify($scope.obj.data));
+            const requestUrl = "http://127.0.0.1:7379/set/" + encodeURIComponent($scope.key);
+            $http.put(requestUrl, $scope.obj.data, {"Content-Type": "application/json"})
+                .then(function successCallback(response) {
+                    console.log(JSON.stringify(response, null, 2));
+                    $scope.lastUpdate = {status: "succeeded", key: $scope.key, response: response};
+                    $scope.fetchEntries();
+                }, function errorCallback(err) {
+                    console.log(JSON.stringify(err));
+                    $scope.lastUpdate = {status: "failed", key: $scope.key, error: err};
+                    $scope.loading = false;
+                });
         }
+    };
+
+    $scope.validateJSON = function (data) {
+        return JSON.stringify($scope.entry) !== JSON.stringify(data);
     };
 
     $scope.fetchEntries();
