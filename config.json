@@ -1,0 +1,21 @@
+{
+  "local": {
+    "stage": "local",
+    "redis": {
+      "host": "localhost",
+      "hosts": ["localhost", "127.0.0.1"],
+      "password": "",
+      "database": 0
+    }
+  },
+  "second": {
+    "stage": "second",
+    "redis": {
+      "host": "localhost",
+      "hosts": ["localhost", "127.0.0.1"],
+      "password": "",
+      "port": 6378,
+      "database": 0
+    }
+  }
+}

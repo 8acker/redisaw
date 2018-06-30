@@ -4,9 +4,9 @@ const path = require('path');
 const open = require('open');
 const kill = require('kill-port');
 const exec = require('child_process').exec;
-var config = require('./config.json');
+var config = require('./config');
 // Module to control application life.
-const app = electron.app
+const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 
@@ -54,58 +54,21 @@ app.on('ready', function () {
 
 app.title = "Redis Operator";
 
-app.startWebdis = startWebdis;
-var connectionStatus = {status: "failed", connectedHost: getRedisHost(), error: new Error("No yet started")};
+app.httpedis = require('httpedis')();
+
+function reload(changes) {
+    app.httpedis.reload(changes);
+}
 
 app.changed = function (stage, host) {
     const changes = {
-        redis_host: host,
-        redis_auth: config[stage].redis.password,
-        database: config[stage].redis.database
+        REDIS_HOST: host,
+        REDIS_PORT: config[stage].redis.port,
+        REDIS_AUTH: config[stage].redis.password,
+        REDIS_DB: config[stage].redis.database
     };
-    writeConfig(changes);
-    startWebdis();
+    reload(changes);
 };
-
-function writeConfig(obj) {
-    const newData = require("./webdis/webdis.json");
-    Object.keys(obj).forEach(function (key) {
-        newData[key] = obj[key]
-    });
-    fs.writeFileSync(path.resolve("webdis.json"), JSON.stringify(newData, null, 2));
-    return newData;
-}
-
-function startWebdis() {
-    kill(7379).then(console.log("Webdis process killed")).catch(console.log);
-    const cmd = "./webdis/webdis webdis.json &";
-    return new Promise(function (resolve) {
-        exec(cmd, function (error, stdout, stderr) {
-            if (error) {
-                connectionStatus.status = "failed";
-                connectionStatus.error = error;
-                return resolve(error);
-            } else if (stderr) {
-                connectionStatus.status = "failed";
-                connectionStatus.error = stderr;
-                return resolve(stderr);
-            } else {
-                connectionStatus.status = "failed";
-                delete connectionStatus.error;
-                resolve(true);
-            }
-        });
-    });
-}
-
-app.getRedisHost = getRedisHost;
-app.getConnectionStatus = function () {
-    return connectionStatus;
-};
-
-function getRedisHost() {
-    return require(path.resolve("webdis.json")).redis_host;
-}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {

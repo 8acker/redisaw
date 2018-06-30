@@ -22,7 +22,7 @@ app.config(function ($routeProvider) {
             }
         })
         .otherwise({redirectTo: "/showall"});
-    electronService.startWebdis().then(console.log("Webdis restarted")).catch(console.log);
+    electronService.httpedis.start();
 });
 
 app.controller("showAllController", ['$scope', '$http', function ($scope, $http) {
@@ -31,6 +31,7 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
     $scope.stage = config.local.stage;
     $scope.host = config[$scope.stage].redis.host;
     $scope.hosts = config[$scope.stage].redis.hosts;
+    $scope.stages = Object.keys(config);
     $scope.loading = false;
 
     $scope.$watch("stage", function (newValue, oldValue) {
@@ -60,16 +61,16 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
     $scope.fetchEntries = function () {
         if (!$scope.select) return;
         $scope.loading = true;
-        const command = $scope.select.indexOf('*') > -1 ? "keys" : "get";
-        const requestUrl = "http://127.0.0.1:7379/" + command + "/" + encodeURIComponent($scope.select);
+        const command = $scope.select.indexOf('*') > -1 ? "scan" : "get";
+        const requestUrl = "http://127.0.0.1:7369/" + command + "/" + $scope.select + "?cursor=0&count=50";
         $http.get(requestUrl).then(function successCallback(response) {
             console.log("GET " + requestUrl);
             if (command === "get") {
                 $scope.key = $scope.select;
-                $scope.entry = JSON.parse(response.data[command]);
+                $scope.entry = response.data;
                 $scope.obj = {data: $scope.entry, options: {mode: "code"}};
             } else {
-                $scope.obj = {data: response.data[command], options: {mode: "code"}};
+                $scope.obj = {data: response.data, options: {mode: "code"}};
             }
             delete $scope.lastUpdate;
             $scope.loading = false;
@@ -93,7 +94,7 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
             };
         } else {
             console.log("Updating key " + $scope.key + ": " + JSON.stringify($scope.obj.data));
-            const requestUrl = "http://127.0.0.1:7379/set/" + encodeURIComponent($scope.key);
+            const requestUrl = "http://127.0.0.1:7369/set/" + $scope.key;
             $http.put(requestUrl, $scope.obj.data, {"Content-Type": "application/json"})
                 .then(function successCallback(response) {
                     console.log(JSON.stringify(response, null, 2));

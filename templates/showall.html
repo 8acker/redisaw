@@ -1,13 +1,9 @@
 <h2>{{ title }}</h2>
 
-<div class="form-group">
-    <label for="stage">Stage:</label>
+<div class="input-group">
     <select class="form-control" id="stage" ng-model="stage">
-        <option value="local">LOCAL</option>
-        <option value="udinc">UDINC</option>
-        <option value="udag">UDAG</option>
+        <option ng-repeat="s in stages" value="{{ s }}">{{ s.toUpperCase() }}</option>
     </select>
-    <label for="host">Host:</label>
     <select class="form-control" id="host" ng-model="host">
         <option ng-repeat="h in hosts" value="{{ h }}">{{ h }}</option>
     </select>
@@ -15,20 +11,21 @@
 
 <hr/>
 
-<div class="form-group">
-    <label for="select">Select:</label>
-    <input type="text" class="form-control" placeholder="Enter to select entry" id="select" ng-model="select"/>
+<div class="input-group">
+    <input type="text" class="form-control" placeholder="Enter to select entries or filter keys" id="select"
+           ng-model="select"/>
     <input type="button" class="form-control" ng-click="updateEntry()" value="Update"/>
     <span style="color: green" ng-if="lastUpdate.status === 'succeeded'">Updating key {{lastUpdate.key}}
         {{lastUpdate.status}}</span>
     <span style="color: red" ng-if="lastUpdate.status === 'failed'">Updating key {{lastUpdate.key}}
         {{lastUpdate.error}}</span>
 </div>
+<hr/>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 ng-if="select" class="panel-title">Results for string '{{select}}'</h3>
+        <h3 ng-if="select" class="panel-title">Results for pattern/key '{{select}}'</h3>
     </div>
+    <hr/>
     <div ng-jsoneditor class="json" ng-model="obj.data" options="obj.options" ng-if="obj.data"></div>
 </div>
-
 <img ng-if="loading" src="img/box.gif"/>
