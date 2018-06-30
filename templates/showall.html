@@ -1,4 +1,5 @@
-<h2>{{ title }}</h2>
+<h1 style="color: crimson">{{ name }}</h1>
+<h2 style="color: coral">{{ title }}</h2>
 
 <div class="input-group">
     <select class="form-control" id="stage" ng-model="stage">
@@ -20,12 +21,12 @@
     <span style="color: red" ng-if="lastUpdate.status === 'failed'">Updating key {{lastUpdate.key}}
         {{lastUpdate.error}}</span>
 </div>
-<hr/>
 <div class="panel panel-primary">
     <div class="panel-heading">
+        <hr/>
         <h3 ng-if="select" class="panel-title">Results for pattern/key '{{select}}'</h3>
+        <hr/>
     </div>
-    <hr/>
     <div ng-jsoneditor class="json" ng-model="obj.data" options="obj.options" ng-if="obj.data"></div>
 </div>
 <img ng-if="loading" src="img/box.gif"/>

@@ -1,33 +1,25 @@
 const electronService = electron.remote.app;
 
 function logChanged(watched, newVal, oldVal) {
-    console.log(watched + " has been changed: " + oldVal + " => " + newVal);
+    electronService.log(watched + " has been changed: " + oldVal + " => " + newVal);
 }
 
 var app = angular.module("RedisOperator", ["ngRoute", "ng.jsoneditor"]);
 
 app.config(function ($routeProvider) {
     $routeProvider
-        .when("/home", {
-            templateUrl: "templates/home.html",
-            controller: "homeController"
-        })
         .when("/showall", {
             templateUrl: "templates/showall.html",
-            controller: "showAllController",
-            resolve: {
-                title: function () {
-                    return "Redis Operator";
-                }
-            }
+            controller: "showAllController"
         })
         .otherwise({redirectTo: "/showall"});
-    electronService.httpedis.start();
+    electronService.startHttpedis();
 });
 
 app.controller("showAllController", ['$scope', '$http', function ($scope, $http) {
     $scope.obj = {options: {mode: "tree"}};
-    $scope.title = electronService.title;
+    $scope.name = "Redisaw";
+    $scope.title = "A Tool to view/filter and update redis entries";
     $scope.stage = config.local.stage;
     $scope.host = config[$scope.stage].redis.host;
     $scope.hosts = config[$scope.stage].redis.hosts;
@@ -114,8 +106,3 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
 
     $scope.fetchEntries();
 }]);
-
-
-app.controller("homeController", function ($scope) {
-    $scope.title = "Home";
-});

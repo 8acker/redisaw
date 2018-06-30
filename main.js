@@ -52,12 +52,14 @@ app.on('ready', function () {
     });
 });
 
-app.title = "Redis Operator";
+const httpedis = require('httpedis')();
 
-app.httpedis = require('httpedis')();
+app.startHttpedis = () => httpedis.start();
+
+app.log = console.log;
 
 function reload(changes) {
-    app.httpedis.reload(changes);
+    httpedis.reload(changes);
 }
 
 app.changed = function (stage, host) {

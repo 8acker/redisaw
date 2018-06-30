@@ -1,5 +1,6 @@
 body {
     margin: 1.6em;
+    background: url("../img/redis-bg.png");
 }
 
 status.ready {
