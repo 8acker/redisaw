@@ -1,31 +1,50 @@
 <h1 style="color: crimson">{{ name }}</h1>
 <h2 style="color: coral">{{ title }}</h2>
 
-<div class="input-group">
-    <select class="form-control" id="stage" ng-model="stage">
-        <option ng-repeat="s in stages" value="{{ s }}">{{ s.toUpperCase() }}</option>
-    </select>
-    <select class="form-control" id="host" ng-model="host">
-        <option ng-repeat="h in hosts" value="{{ h }}">{{ h }}</option>
-    </select>
+<hr/>
+
+<div class="input-group row">
+    <div class="col-1">
+        <select class="form-control" id="stage" ng-model="stage">
+            <option ng-repeat="s in stages" value="{{ s }}">{{ s.toUpperCase() }}</option>
+        </select>
+    </div>
+    <div class="col-4">
+        <select class="form-control" id="host" ng-model="host">
+            <option ng-repeat="h in hosts" value="{{ h }}">{{ h.toLowerCase() }}</option>
+        </select>
+    </div>
 </div>
 
 <hr/>
 
-<div class="input-group">
-    <input type="text" class="form-control" placeholder="Enter to select entries or filter keys" id="select"
-           ng-model="select"/>
-    <input type="button" class="form-control" ng-click="updateEntry()" value="Update"/>
-    <span style="color: green" ng-if="lastUpdate.status === 'succeeded'">Updating key {{lastUpdate.key}}
-        {{lastUpdate.status}}</span>
-    <span style="color: red" ng-if="lastUpdate.status === 'failed'">Updating key {{lastUpdate.key}}
-        {{lastUpdate.error}}</span>
+<div class="input-group row">
+    <div class="col-5">
+        <input type="text" class="form-control" placeholder="Enter to select entries or filter keys" id="select"
+               ng-model="select"/>
+    </div>
+    <div class="col-1">
+        <select class="form-control" id="count" ng-model="count">
+            <option ng-repeat="i in counter(100) track by $index" value="{{ 10 + $index*10 }}">{{ 10 + $index*10 }}
+            </option>
+        </select>
+    </div>
+    <div class="col-2">
+        <input type="button" class="form-control" ng-click="updateEntry()" value="Update"/>
+    </div>
+    <div class="col-9">
+        <span style="color: lightseagreen" ng-if="lastUpdate.status === 'succeeded'">Updating entry with key
+            {{lastUpdate.key}}: {{lastUpdate.status}}</span>
+            <span style="color: crimson" ng-if="lastUpdate.status === 'failed'">Updating entry with key
+            {{lastUpdate.key}}: {{lastUpdate.error}}</span>
+    </div>
+
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <hr/>
+        <hr ng-if="select"/>
         <h3 ng-if="select" class="panel-title">Results for pattern/key '{{select}}'</h3>
-        <hr/>
+        <hr ng-if="select"/>
     </div>
     <div ng-jsoneditor class="json" ng-model="obj.data" options="obj.options" ng-if="obj.data"></div>
 </div>

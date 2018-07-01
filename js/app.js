@@ -1,7 +1,8 @@
-const electronService = electron.remote.app;
+const mainApp = electron.remote.app;
+const logger = mainApp.logger;
 
 function logChanged(watched, newVal, oldVal) {
-    electronService.log(watched + " has been changed: " + oldVal + " => " + newVal);
+    logger.log(watched, "has been changed:", oldVal, "=>", newVal);
 }
 
 var app = angular.module("RedisOperator", ["ngRoute", "ng.jsoneditor"]);
@@ -13,13 +14,15 @@ app.config(function ($routeProvider) {
             controller: "showAllController"
         })
         .otherwise({redirectTo: "/showall"});
-    electronService.startHttpedis();
+    mainApp.startHttpedis();
 });
 
 app.controller("showAllController", ['$scope', '$http', function ($scope, $http) {
+    $scope.count = 10;
+    $scope.counter = Array;
     $scope.obj = {options: {mode: "tree"}};
     $scope.name = "Redisaw";
-    $scope.title = "A Tool to view/filter and update redis entries";
+    $scope.title = "A Tool to view, filter and update redis entries";
     $scope.stage = config.local.stage;
     $scope.host = config[$scope.stage].redis.host;
     $scope.hosts = config[$scope.stage].redis.hosts;
@@ -31,7 +34,7 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
             logChanged("stage", newValue, oldValue);
             $scope.hosts = config[$scope.stage].redis.hosts;
             $scope.host = config[$scope.stage].redis.host;
-            electronService.changed($scope.stage, $scope.host);
+            mainApp.changed($scope.stage, $scope.host);
             $scope.fetchEntries();
         }
     });
@@ -39,7 +42,7 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
     $scope.$watch("host", function (newValue, oldValue) {
         if (oldValue !== newValue) {
             logChanged("host", newValue, oldValue);
-            electronService.changed($scope.stage, $scope.host);
+            mainApp.changed($scope.stage, $scope.host);
             $scope.fetchEntries();
         }
     });
@@ -50,13 +53,19 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
         }
     });
 
+    $scope.$watch("count", function (newValue, oldValue) {
+        if (oldValue !== newValue) {
+            $scope.fetchEntries();
+        }
+    });
+
     $scope.fetchEntries = function () {
         if (!$scope.select) return;
         $scope.loading = true;
         const command = $scope.select.indexOf('*') > -1 ? "scan" : "get";
-        const requestUrl = "http://127.0.0.1:7369/" + command + "/" + $scope.select + "?cursor=0&count=50";
+        const requestUrl = "http://127.0.0.1:7369/" + command + "/" + $scope.select + "?cursor=0&count=" + $scope.count;
         $http.get(requestUrl).then(function successCallback(response) {
-            console.log("GET " + requestUrl);
+            logger.log("GET", requestUrl);
             if (command === "get") {
                 $scope.key = $scope.select;
                 $scope.entry = response.data;
@@ -67,7 +76,7 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
             delete $scope.lastUpdate;
             $scope.loading = false;
         }, function errorCallback(err) {
-            console.log(JSON.stringify(err));
+            logger.error(JSON.stringify(err));
             $scope.loading = false;
         });
     };
@@ -85,15 +94,14 @@ app.controller("showAllController", ['$scope', '$http', function ($scope, $http)
                 error: new Error("JSON input not valid or entry has not been changed")
             };
         } else {
-            console.log("Updating key " + $scope.key + ": " + JSON.stringify($scope.obj.data));
             const requestUrl = "http://127.0.0.1:7369/set/" + $scope.key;
             $http.put(requestUrl, $scope.obj.data, {"Content-Type": "application/json"})
                 .then(function successCallback(response) {
-                    console.log(JSON.stringify(response, null, 2));
+                    logger.log("PUT", requestUrl, $scope.obj.data);
                     $scope.lastUpdate = {status: "succeeded", key: $scope.key, response: response};
                     $scope.fetchEntries();
                 }, function errorCallback(err) {
-                    console.log(JSON.stringify(err));
+                    logger.error(JSON.stringify(err));
                     $scope.lastUpdate = {status: "failed", key: $scope.key, error: err};
                     $scope.loading = false;
                 });

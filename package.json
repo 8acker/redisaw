@@ -4,13 +4,13 @@
   "description": "redis viewer",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "node_modules/.bin/electron ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://diygitlabbs01.infra.server.lan/froth/cme-suppilo-to-mywebsite-importer-redis-gui.git"
+    "url": "git+https://github.com/tbouchnafa/redisaw.git"
   },
-  "author": "Frank Roth & Thami Bouchnafa",
+  "author": "Thami Bouchnafa",
   "license": "CC0-1.0",
   "dependencies": {
     "angular": "^1.6.9",
@@ -18,9 +18,8 @@
     "bootstrap": "^4.1.1",
     "dateformat": "^3.0.2",
     "debug": "^2.2.0",
-    "httpedis": "^1.0.4",
+    "httpedis": "^1.0.5",
     "jsoneditor": "^5.14.1",
-    "kill-port": "^1.1.0",
     "ng-jsoneditor": "^1.0.0",
     "open": "0.0.5"
   },
