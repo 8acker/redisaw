@@ -1,6 +1,6 @@
 const electron = require('electron');
 const open = require('open');
-const config = require('./config');
+const config = require('./.config');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
