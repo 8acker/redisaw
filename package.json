@@ -13,20 +13,20 @@
   "author": "Thami Bouchnafa",
   "license": "CC0-1.0",
   "dependencies": {
-    "angular": "^1.6.9",
-    "angular-route": "^1.6.9",
-    "bootstrap": "^4.1.1",
-    "dateformat": "^3.0.2",
-    "debug": "^2.2.0",
+    "angular": "^1.7.8",
+    "angular-route": "^1.7.8",
+    "bootstrap": "^4.3.1",
+    "dateformat": "^3.0.3",
+    "debug": "^4.1.1",
     "httpedis": "^1.0.5",
-    "jsoneditor": "^5.14.1",
+    "jsoneditor": "^6.1.0",
     "ng-jsoneditor": "^1.0.0",
-    "open": "0.0.5"
+    "open": "^6.3.0"
   },
   "devDependencies": {
-    "concurrently": "^2.0.0",
-    "electron-prebuilt": "^1.2.0",
+    "concurrently": "^4.1.1",
+    "electron-prebuilt": "^1.4.13",
     "grunt-electron-installer": "^2.1.0",
-    "lite-server": "^2.2.0"
+    "lite-server": "^2.5.3"
   }
 }
