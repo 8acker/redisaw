@@ -28,6 +28,7 @@ app.on('ready', function () {
 
     mainWindow.webContents.on('new-window', function (e, url) {
         e.preventDefault();
+        console.log(`Opening url ${url}`);
         open(url);
     });
 });
